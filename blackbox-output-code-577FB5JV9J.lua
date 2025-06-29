@@ -1,12 +1,11 @@
---!strict
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
--- Load RayField UI Library (Must be in ReplicatedStorage)
+
 local RayField = require(ReplicatedStorage:WaitForChild("RayField"))
 
--- Initialize UI
+
 local LoadingUI = RayField.CreateWindow({
     Name = "LoadingScreen",
     LoadingTitle = "Loading Game...",
@@ -14,7 +13,7 @@ local LoadingUI = RayField.CreateWindow({
     KeySystem = false,
 })
 
--- Create Loading Frame
+
 local LoadingFrame = LoadingUI:CreateFrame({
     Name = "LoadingFrame",
     Color = Color3.fromRGB(20, 20, 20),
@@ -23,7 +22,7 @@ local LoadingFrame = LoadingUI:CreateFrame({
     Position = UDim2.new(0.2, 0, 0.4, 0),
 })
 
--- Add Progress Bar
+
 local ProgressBar = LoadingFrame:CreateProgressBar({
     Name = "LoadProgress",
     Value = 0,
@@ -33,7 +32,7 @@ local ProgressBar = LoadingFrame:CreateProgressBar({
     FillColor = Color3.fromRGB(0, 170, 255),
 })
 
--- Add Status Text
+
 local StatusLabel = LoadingFrame:CreateLabel({
     Name = "StatusText",
     Text = "Initializing...",
@@ -42,7 +41,7 @@ local StatusLabel = LoadingFrame:CreateLabel({
     Position = UDim2.new(0.05, 0, 0.3, 0),
 })
 
--- Simulate Loading Progress
+
 local function UpdateLoadProgress()
     -- Fake loading steps (replace with real loading checks)
     local steps = {
@@ -57,7 +56,7 @@ local function UpdateLoadProgress()
         wait(1)
     end
 
-    -- Animation: Smooth fade-out
+   
     for i = 1, 10 do
         LoadingFrame.BackgroundTransparency += 0.1
         wait(0.05)
@@ -66,6 +65,6 @@ local function UpdateLoadProgress()
     LoadingUI:Destroy() -- Remove UI when done
 end
 
--- Wait for player to load before starting
+
 Players.LocalPlayer:WaitForChild("PlayerGui")  
 UpdateLoadProgress()
