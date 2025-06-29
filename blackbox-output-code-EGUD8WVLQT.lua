@@ -1,16 +1,15 @@
--- This script handles a coin that players can click to collect
-local coin = script.Parent  -- Assumes this script is inside a Part named "Coin"
+local coin = script.Parent  
 
-local COIN_VALUE = 10  -- Points awarded per coin
-local RESPAWN_TIME = 5 -- Seconds before coin reappears after collection
+local COIN_VALUE = 10  
+local RESPAWN_TIME = 5 
 
--- Initialize coin appearance (make it gold and spin)
+
 coin.BrickColor = BrickColor.new("Gold")
 coin.Material = Enum.Material.Metal
 
 local spinning = false
 
--- Function to make the coin spin
+
 local function spinCoin()
     spinning = true
     while coin.Parent and spinning do
@@ -19,7 +18,7 @@ local function spinCoin()
     end
 end
 
--- Function to handle when a player touches the coin
+
 local function onTouch(otherPart)
     local character = otherPart.Parent
     local humanoid = character:FindFirstChildOfClass("Humanoid")
@@ -59,10 +58,3 @@ local function onTouch(otherPart)
     end
 end
 
--- Start the coin spinning
-spawn(spinCoin)
-
--- Connect the touch event
-coin.Touched:Connect(onTouch)
-
-print("Coin script loaded!")
