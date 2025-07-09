@@ -1,0 +1,95 @@
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local player = Players.LocalPlayer
+
+local screen = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+screen.Name = "LoadingScreen"
+screen.ResetOnSpawn = false
+
+local background = Instance.new("Frame", screen)
+background.Size = UDim2.new(1, 0, 1, 0)
+background.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+background.BackgroundTransparency = 0.5
+
+local gradient = Instance.new("UIGradient", background)
+gradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 255))
+}
+
+
+local title = Instance.new("TextLabel", background)
+title.Size = UDim2.new(1, 0, 0.2, 0)
+title.Position = UDim2.new(0, 0, 0.05, 0)
+title.Text = "Spawner by Shane"
+title.Font = Enum.Font.FredokaOne
+title.TextSize = 48
+title.TextColor3 = Color3.new(1, 1, 1)
+title.BackgroundTransparency = 1
+
+local subtext = Instance.new("TextLabel", background)
+subtext.Size = UDim2.new(1, 0, 0.1, 0)
+subtext.Position = UDim2.new(0, 0, 0.2, 0)
+subtext.Text = "Loading resources... Wait for wonderfull spawner!"
+subtext.Font = Enum.Font.GothamSemibold
+subtext.TextSize = 24
+subtext.TextColor3 = Color3.new(1, 1, 1)
+subtext.BackgroundTransparency = 1
+
+
+local barBackground = Instance.new("Frame", background)
+barBackground.Size = UDim2.new(0.6, 0, 0.05, 0)
+barBackground.Position = UDim2.new(0.2, 0, 0.6, 0)
+barBackground.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
+barBackground.BorderSizePixel = 0
+barBackground.BackgroundTransparency = 0.7
+
+
+local fillBar = Instance.new("Frame", barBackground)
+fillBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+fillBar.Size = UDim2.new(0, 0, 1, 0)
+fillBar.BorderSizePixel = 0
+
+
+local percentLabel = Instance.new("TextLabel", background)
+percentLabel.Size = UDim2.new(1, 0, 0.1, 0)
+percentLabel.Position = UDim2.new(0, 0, 0.7, 0)
+percentLabel.Text = "0%"
+percentLabel.Font = Enum.Font.GothamBold
+percentLabel.TextSize = 32
+percentLabel.TextColor3 = Color3.new(1, 1, 1)
+percentLabel.BackgroundTransparency = 1
+
+
+local viewportFrame = Instance.new("ViewportFrame", background)
+viewportFrame.Size = UDim2.new(0.25, 0, 0.4, 0)
+viewportFrame.Position = UDim2.new(0.375, 0, 0.25, 0)
+viewportFrame.BackgroundTransparency = 1
+
+local camera = Instance.new("Camera")
+viewportFrame.CurrentCamera = camera
+camera.Parent = viewportFrame
+
+
+local function showAvatar()
+    local clone = player.Character or player.CharacterAdded:Wait()
+    local avatarClone = clone:Clone()
+    for _, obj in pairs(avatarClone:GetDescendants()) do
+        if obj:IsA("BaseScript") then
+            obj:Destroy()
+        end
+    end
+    avatarClone.Parent = viewportFrame
+    camera.CFrame = CFrame.new(Vector3.new(0, 1.5, 5), Vector3.new(0, 1.5, 0))
+end
+
+
+
+for i = 1, 100 do
+    fillBar.Size = UDim2.new(i / 100, 0, 1, 0)
+    percentLabel.Text = i .. "%"
+    wait(0.03) -- Loading speed
+end
+
+wait(0.5)
+screen:Destroy()
