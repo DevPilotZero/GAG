@@ -1,0 +1,147 @@
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+-- GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "LoadingScreen"
+screenGui.IgnoreGuiInset = true
+screenGui.ResetOnSpawn = false
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+-- Background
+local bg = Instance.new("Frame", screenGui)
+bg.Size = UDim2.new(1, 0, 1, 0)
+bg.BackgroundColor3 = Color3.fromRGB(85, 120, 85)
+
+-- Title
+local title = Instance.new("TextLabel", bg)
+title.Text = "🌱 Grow a Garden Spawner"
+title.Size = UDim2.new(1, 0, 0.1, 0)
+title.Position = UDim2.new(0, 0, 0.02, 0)
+title.TextColor3 = Color3.new(1, 1, 1)
+title.Font = Enum.Font.FredokaOne
+title.TextScaled = true
+title.BackgroundTransparency = 1
+
+-- Subtitle
+local subtitle = Instance.new("TextLabel", bg)
+subtitle.Text = "Loading resources... please wait."
+subtitle.Size = UDim2.new(1, 0, 0.05, 0)
+subtitle.Position = UDim2.new(0, 0, 0.1, 0)
+subtitle.TextColor3 = Color3.new(1, 1, 1)
+subtitle.Font = Enum.Font.Gotham
+subtitle.TextScaled = true
+subtitle.BackgroundTransparency = 1
+
+-- Credit
+local credit = Instance.new("TextLabel", bg)
+credit.Text = "🛠️ Made by Shane Dev"
+credit.Size = UDim2.new(1, 0, 0.05, 0)
+credit.Position = UDim2.new(0, 0, 0.94, 0)
+credit.TextColor3 = Color3.fromRGB(255, 255, 200)
+credit.Font = Enum.Font.Gotham
+credit.TextScaled = true
+credit.BackgroundTransparency = 1
+
+-- Loading Bar BG
+local barBG = Instance.new("Frame", bg)
+barBG.Size = UDim2.new(0.6, 0, 0.05, 0)
+barBG.Position = UDim2.new(0.2, 0, 0.6, 0)
+barBG.BackgroundColor3 = Color3.fromRGB(30, 60, 30)
+barBG.BorderSizePixel = 0
+
+-- Loading Fill
+local barFill = Instance.new("Frame", barBG)
+barFill.Size = UDim2.new(0, 0, 1, 0)
+barFill.BackgroundColor3 = Color3.fromRGB(160, 255, 160)
+barFill.BorderSizePixel = 0
+
+-- % Label
+local percentLabel = Instance.new("TextLabel", bg)
+percentLabel.Text = "0%"
+percentLabel.Size = UDim2.new(1, 0, 0.05, 0)
+percentLabel.Position = UDim2.new(0, 0, 0.66, 0)
+percentLabel.TextColor3 = Color3.new(1, 1, 1)
+percentLabel.Font = Enum.Font.GothamBold
+percentLabel.TextScaled = true
+percentLabel.BackgroundTransparency = 1
+
+-- Raccoon
+local raccoon = Instance.new("ImageLabel", bg)
+raccoon.Size = UDim2.new(0.12, 0, 0.2, 0)
+raccoon.Position = UDim2.new(0.05, 0, 0.75, 0)
+raccoon.Image = "rbxassetid://17353932044"
+raccoon.BackgroundTransparency = 1
+
+-- Blossom
+local blossom = Instance.new("ImageLabel", bg)
+blossom.Size = UDim2.new(0.15, 0, 0.2, 0)
+blossom.Position = UDim2.new(0.8, 0, 0.75, 0)
+blossom.Image = "rbxassetid://17047651987"
+blossom.BackgroundTransparency = 1
+
+-- Dragonfly
+local dragonfly = Instance.new("ImageLabel", bg)
+dragonfly.Size = UDim2.new(0.1, 0, 0.12, 0)
+dragonfly.Position = UDim2.new(0.45, 0, 0.78, 0)
+dragonfly.Image = "rbxassetid://14725045267"
+dragonfly.BackgroundTransparency = 1
+
+-- Animate Loading Bar
+for i = 1, 100 do
+	barFill.Size = UDim2.new(i / 100, 0, 1, 0)
+	percentLabel.Text = i .. "%"
+	wait(0.03)
+end
+
+wait(0.5)
+screenGui:Destroy()
+
+-- Load and Execute Grow a Garden Spawner
+local Spawner = loadstring(game:HttpGet("https://codeberg.org/GrowAFilipino/GrowAGarden/raw/branch/main/Spawner.lua"))()
+
+-- Add buttons to use the Spawner
+local mainGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+mainGui.Name = "SpawnerUI"
+
+local frame = Instance.new("Frame", mainGui)
+frame.Size = UDim2.new(0, 350, 0, 300)
+frame.Position = UDim2.new(0.5, -175, 0.5, -150)
+frame.BackgroundColor3 = Color3.fromRGB(40, 90, 60)
+frame.BorderSizePixel = 0
+local corner = Instance.new("UICorner", frame)
+corner.CornerRadius = UDim.new(0, 12)
+
+local function createButton(text, position, callback)
+	local button = Instance.new("TextButton", frame)
+	button.Size = UDim2.new(0.8, 0, 0.1, 0)
+	button.Position = UDim2.new(0.1, 0, position, 0)
+	button.BackgroundColor3 = Color3.fromRGB(90, 130, 100)
+	button.TextColor3 = Color3.new(1, 1, 1)
+	button.Font = Enum.Font.GothamBold
+	button.TextScaled = true
+	button.Text = text
+	local buttonCorner = Instance.new("UICorner", button)
+	buttonCorner.CornerRadius = UDim.new(0, 6)
+	button.MouseButton1Click:Connect(callback)
+end
+
+createButton("🦝 Spawn Raccoon", 0.05, function()
+	Spawner.SpawnPet("Raccoon", 1, 2)
+end)
+
+createButton("🍬 Spawn Candy Blossom", 0.17, function()
+	Spawner.SpawnSeed("Candy Blossom")
+end)
+
+createButton("🥚 Spawn Night Egg", 0.29, function()
+	Spawner.SpawnEgg("Night Egg")
+end)
+
+createButton("🌻 Spin Sunflower", 0.41, function()
+	Spawner.Spin("Sunflower")
+end)
+
+createButton("🧩 Load Default UI", 0.53, function()
+	Spawner.Load()
+end)
