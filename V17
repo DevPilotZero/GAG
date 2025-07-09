@@ -1,127 +1,98 @@
 local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
 local player = Players.LocalPlayer
 
--- Create the loading screen
-local loadingScreen = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-loadingScreen.Name = "LoadingScreen"
-loadingScreen.ResetOnSpawn = false
+-- GUI Setup
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "LoadingScreen"
+screenGui.IgnoreGuiInset = true
+screenGui.ResetOnSpawn = false
+screenGui.Parent = player:WaitForChild("PlayerGui")
 
-local background = Instance.new("Frame", loadingScreen)
-background.Size = UDim2.new(1, 0, 1, 0)
-background.BackgroundColor3 = Color3.fromRGB(30, 30, 30) -- Darker background color
-background.BackgroundTransparency = 0.8
+-- Background
+local bg = Instance.new("Frame", screenGui)
+bg.Size = UDim2.new(1, 0, 1, 0)
+bg.BackgroundColor3 = Color3.fromRGB(85, 120, 85)
 
--- Add a cool gradient effect
-local gradient = Instance.new("UIGradient", background)
-gradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 0)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(50, 50, 50))
-}
-
--- Add seeds and raccoon images
-local seedImage = Instance.new("ImageLabel", background)
-seedImage.Size = UDim2.new(0.1, 0, 0.1, 0)
-seedImage.Position = UDim2.new(0.1, 0, 0.1, 0)
-seedImage.Image = "rbxassetid://YOUR_SEED_IMAGE_ID" -- Replace with your seed image asset ID
-seedImage.BackgroundTransparency = 1
-
-local raccoonImage = Instance.new("ImageLabel", background)
-raccoonImage.Size = UDim2.new(0.2, 0, 0.2, 0)
-raccoonImage.Position = UDim2.new(0.7, 0, 0.1, 0)
-raccoonImage.Image = "rbxassetid://YOUR_RACCOON_IMAGE_ID" -- Replace with your raccoon image asset ID
-raccoonImage.BackgroundTransparency = 1
-
-local title = Instance.new("TextLabel", background)
-title.Size = UDim2.new(1, 0, 0.2, 0)
-title.Position = UDim2.new(0, 0, 0.05, 0)
-title.Text = "Spawner by Shane"
-title.Font = Enum.Font.FredokaOne
-title.TextSize = 48
+-- Title
+local title = Instance.new("TextLabel", bg)
+title.Text = "🌱 Grow a Garden Spawner"
+title.Size = UDim2.new(1, 0, 0.1, 0)
+title.Position = UDim2.new(0, 0, 0.02, 0)
 title.TextColor3 = Color3.new(1, 1, 1)
+title.Font = Enum.Font.FredokaOne
+title.TextScaled = true
 title.BackgroundTransparency = 1
 
-local subtext = Instance.new("TextLabel", background)
-subtext.Size = UDim2.new(1, 0, 0.1, 0)
-subtext.Position = UDim2.new(0, 0, 0.2, 0)
-subtext.Text = "Loading resources... Wait for wonderful spawner!"
-subtext.Font = Enum.Font.GothamSemibold
-subtext.TextSize = 24
-subtext.TextColor3 = Color3.new(1, 1, 1)
-subtext.BackgroundTransparency = 1
+-- Subtitle
+local subtitle = Instance.new("TextLabel", bg)
+subtitle.Text = "Loading resources... please wait."
+subtitle.Size = UDim2.new(1, 0, 0.05, 0)
+subtitle.Position = UDim2.new(0, 0, 0.1, 0)
+subtitle.TextColor3 = Color3.new(1, 1, 1)
+subtitle.Font = Enum.Font.Gotham
+subtitle.TextScaled = true
+subtitle.BackgroundTransparency = 1
 
-local barBackground = Instance.new("Frame", background)
-barBackground.Size = UDim2.new(0.6, 0, 0.05, 0)
-barBackground.Position = UDim2.new(0.2, 0, 0.6, 0)
-barBackground.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
-barBackground.BorderSizePixel = 0
-barBackground.BackgroundTransparency = 0.7
+-- Credit
+local credit = Instance.new("TextLabel", bg)
+credit.Text = "🛠️ Made by Shane Dev"
+credit.Size = UDim2.new(1, 0, 0.05, 0)
+credit.Position = UDim2.new(0, 0, 0.94, 0)
+credit.TextColor3 = Color3.fromRGB(255, 255, 200)
+credit.Font = Enum.Font.Gotham
+credit.TextScaled = true
+credit.BackgroundTransparency = 1
 
-local fillBar = Instance.new("Frame", barBackground)
-fillBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-fillBar.Size = UDim2.new(0, 0, 1, 0)
-fillBar.BorderSizePixel = 0
+-- Loading Bar Background
+local barBG = Instance.new("Frame", bg)
+barBG.Size = UDim2.new(0.6, 0, 0.05, 0)
+barBG.Position = UDim2.new(0.2, 0, 0.6, 0)
+barBG.BackgroundColor3 = Color3.fromRGB(30, 60, 30)
+barBG.BorderSizePixel = 0
 
-local percentLabel = Instance.new("TextLabel", background)
-percentLabel.Size = UDim2.new(1, 0, 0.1, 0)
-percentLabel.Position = UDim2.new(0, 0, 0.7, 0)
+-- Loading Bar Fill
+local barFill = Instance.new("Frame", barBG)
+barFill.Size = UDim2.new(0, 0, 1, 0)
+barFill.BackgroundColor3 = Color3.fromRGB(160, 255, 160)
+barFill.BorderSizePixel = 0
+
+-- Percent Label
+local percentLabel = Instance.new("TextLabel", bg)
 percentLabel.Text = "0%"
-percentLabel.Font = Enum.Font.GothamBold
-percentLabel.TextSize = 32
+percentLabel.Size = UDim2.new(1, 0, 0.05, 0)
+percentLabel.Position = UDim2.new(0, 0, 0.66, 0)
 percentLabel.TextColor3 = Color3.new(1, 1, 1)
+percentLabel.Font = Enum.Font.GothamBold
+percentLabel.TextScaled = true
 percentLabel.BackgroundTransparency = 1
 
-local viewportFrame = Instance.new("ViewportFrame", background)
-viewportFrame.Size = UDim2.new(0.25, 0, 0.4, 0)
-viewportFrame.Position = UDim2.new(0.375, 0, 0.25, 0)
-viewportFrame.BackgroundTransparency = 1
+-- Raccoon Image
+local raccoon = Instance.new("ImageLabel", bg)
+raccoon.Size = UDim2.new(0.12, 0, 0.2, 0)
+raccoon.Position = UDim2.new(0.05, 0, 0.75, 0)
+raccoon.Image = "rbxassetid://17353932044" -- replace if needed
+raccoon.BackgroundTransparency = 1
 
-local camera = Instance.new("Camera")
-viewportFrame.CurrentCamera = camera
-camera.Parent = viewportFrame
+-- Candy Blossom Image
+local blossom = Instance.new("ImageLabel", bg)
+blossom.Size = UDim2.new(0.15, 0, 0.2, 0)
+blossom.Position = UDim2.new(0.8, 0, 0.75, 0)
+blossom.Image = "rbxassetid://17047651987" -- replace if needed
+blossom.BackgroundTransparency = 1
 
-local function showAvatar()
-    local clone = player.Character or player.CharacterAdded:Wait()
-    local avatarClone = clone:Clone()
-    for _, obj in pairs(avatarClone:GetDescendants()) do
-        if obj:IsA("BaseScript") then
-            obj:Destroy()
-        end
-    end
-    avatarClone.Parent = viewportFrame
-    camera.CFrame = CFrame.new(Vector3.new(0, 1.5, 5), Vector3.new(0, 1.5, 0))
-end
+-- Dragonfly Image
+local dragonfly = Instance.new("ImageLabel", bg)
+dragonfly.Size = UDim2.new(0.1, 0, 0.12, 0)
+dragonfly.Position = UDim2.new(0.45, 0, 0.78, 0)
+dragonfly.Image = "rbxassetid://14725045267" -- replace if needed
+dragonfly.BackgroundTransparency = 1
 
--- Show the avatar in the viewport
-showAvatar()
-
--- Loading process
+-- Animate loading bar over 5 minutes (300 seconds)
 for i = 1, 100 do
-    fillBar.Size = UDim2.new(i / 100, 0, 1, 0)
-    percentLabel.Text = i .. "%"
-    wait(0.03) -- Loading speed
+	barFill.Size = UDim2.new(i / 100, 0, 1, 0)
+	percentLabel.Text = i .. "%"
+	wait(3) -- 3 seconds per 1% = 5 minutes total (3 * 100 = 300 seconds)
 end
 
 wait(0.5)
-loadingScreen:Destroy() -- Remove loading screen
-
--- Create the main GUI after loading
-local mainGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-mainGui.Name = "MainGui"
-mainGui.ResetOnSpawn = false
-
--- Example GUI elements
-local mainFrame = Instance.new("Frame", mainGui)
-mainFrame.Size = UDim2.new(0.8, 0, 0.8, 0)
-mainFrame.Position = UDim2.new(0.1, 0, 0.1, 0)
-mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-mainFrame.BackgroundTransparency = 0.5
-
-local mainTitle = Instance.new("TextLabel", mainFrame)
-mainTitle.Size = UDim2.new(1, 0, 0.1, 0)
-mainTitle.Position = UDim2.new(0, 0, 0, 0)
-mainTitle.Text = "Welcome to the Spawner!"
-mainTitle.Font = Enum.Font.FredokaOne
-mainTitle.TextSize = 36
-mainTitle.TextColor3 = Color3.new(1, 1, 1)
-mainTitle.BackgroundTransparency = 1
+screenGui:Destroy()
