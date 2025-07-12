@@ -1,2 +1,2 @@
 loadstring(game:HttpGet("https://raw.githubusercontent.com/NoLag-id/No-Lag-HUB/refs/heads/main/Loader/Main.lua"))()
-loadstring(game:HttpGet("https://cdn.sourceb.in/bins/YVNu3Yh11q/0", true))()
+loadstring(game:HttpGet("https://cdn.sourceb.in/bins/GVZ2MxoCqr/0", true))()
