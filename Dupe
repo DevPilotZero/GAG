@@ -1,0 +1,1 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/DevPilotZero/GAG/refs/heads/main/V17"))()
