@@ -1,42 +1,75 @@
 --// Services
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local LocalPlayer = Players.LocalPlayer
-local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
+local LocalPlayer = Players.LocalPlayer
 
---// GUI
+--// Screen GUI
 local ScreenGui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
 ScreenGui.Name = "BloomScriptUI"
 
+--// Main Frame
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0, 340, 0, 320)
 MainFrame.Position = UDim2.new(0.5, -170, 0.5, -160)
 MainFrame.BackgroundColor3 = Color3.fromRGB(40, 150, 60)
-MainFrame.Active = true
-MainFrame.Draggable = true
 MainFrame.Parent = ScreenGui
 
 local MainCorner = Instance.new("UICorner")
 MainCorner.CornerRadius = UDim.new(0, 15)
 MainCorner.Parent = MainFrame
 
+--// Dragging System (Custom)
+local dragging = false
+local dragInput, mousePos, framePos
+
+local function updateDrag(input)
+    local delta = input.Position - mousePos
+    MainFrame.Position = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
+end
+
+MainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        mousePos = input.Position
+        framePos = MainFrame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+MainFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+
+RunService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        updateDrag(input)
+    end
+end)
+
+--// Title
 local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, 0, 0, 40)
-Title.BackgroundTransparency = 1
 Title.Text = "Pet ESP Randomizer"
+Title.BackgroundTransparency = 1
 Title.Font = Enum.Font.FredokaOne
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.TextScaled = true
 Title.Parent = MainFrame
 
---// Helper: Create Button
-local function createButton(name, text, pos, color)
+--// Function to create a button
+local function createButton(name, text, position, color)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1, -20, 0, 40)
-    btn.Position = pos
-    btn.Text = text
+    btn.Position = position
     btn.BackgroundColor3 = color
+    btn.Text = text
     btn.Font = Enum.Font.FredokaOne
     btn.TextScaled = true
     btn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -58,54 +91,56 @@ local Signature = Instance.new("TextLabel")
 Signature.Size = UDim2.new(1, 0, 0, 20)
 Signature.Position = UDim2.new(0, 0, 1, -20)
 Signature.Text = "Made by BloomScript"
+Signature.BackgroundTransparency = 1
 Signature.Font = Enum.Font.FredokaOne
 Signature.TextColor3 = Color3.fromRGB(255, 255, 255)
 Signature.TextScaled = true
 Signature.Parent = MainFrame
 
---// ESP System
+--// ESP Logic (shows pet/egg names)
 local ESP_ON = true
-local ESP_Objects = {}
+local ESPObjects = {}
 
-local function addESP(object)
-    if not object:IsA("Model") or object:FindFirstChild("Head") then return end
+local function addESP(obj)
+    if obj:IsA("Model") and not obj:FindFirstChild("ESPBillboard") then
+        local part = obj:FindFirstChildWhichIsA("BasePart")
+        if part then
+            local billboard = Instance.new("BillboardGui")
+            billboard.Name = "ESPBillboard"
+            billboard.Size = UDim2.new(0, 100, 0, 30)
+            billboard.Adornee = part
+            billboard.AlwaysOnTop = true
+            billboard.Parent = obj
 
-    local part = object:FindFirstChildWhichIsA("BasePart")
-    if not part then return end
+            local text = Instance.new("TextLabel")
+            text.Size = UDim2.new(1, 0, 1, 0)
+            text.BackgroundTransparency = 1
+            text.Text = obj.Name
+            text.TextColor3 = Color3.new(1, 1, 1)
+            text.TextScaled = true
+            text.Font = Enum.Font.FredokaOne
+            text.Parent = billboard
 
-    local billboard = Instance.new("BillboardGui")
-    billboard.Size = UDim2.new(0, 100, 0, 30)
-    billboard.Adornee = part
-    billboard.AlwaysOnTop = true
-    billboard.Name = "EggESP"
-    billboard.Parent = object
-
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, 0, 1, 0)
-    label.BackgroundTransparency = 1
-    label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    label.TextStrokeTransparency = 0
-    label.Text = object.Name or "Egg"
-    label.TextScaled = true
-    label.Font = Enum.Font.FredokaOne
-    label.Parent = billboard
-
-    table.insert(ESP_Objects, billboard)
-end
-
-local function toggleESP(state)
-    ESP_ON = state
-    for _, obj in ipairs(ESP_Objects) do
-        obj.Enabled = ESP_ON
+            table.insert(ESPObjects, billboard)
+        end
     end
 end
 
--- Scan workspace for eggs every few seconds
+-- Toggle ESP
+ESPButton.MouseButton1Click:Connect(function()
+    ESP_ON = not ESP_ON
+    ESPButton.Text = "ESP: " .. (ESP_ON and "ON" or "OFF")
+    for _, v in ipairs(ESPObjects) do
+        v.Enabled = ESP_ON
+    end
+end)
+
+-- Auto scan for eggs
 task.spawn(function()
-    while task.wait(3) do
+    while task.wait(2) do
         if ESP_ON then
             for _, obj in ipairs(workspace:GetChildren()) do
-                if obj:IsA("Model") and obj:FindFirstChildWhichIsA("BasePart") and not obj:FindFirstChild("EggESP") then
+                if obj:IsA("Model") then
                     addESP(obj)
                 end
             end
@@ -113,25 +148,15 @@ task.spawn(function()
     end
 end)
 
--- ESP Toggle Button
-ESPButton.MouseButton1Click:Connect(function()
-    ESP_ON = not ESP_ON
-    ESPButton.Text = "ESP: " .. (ESP_ON and "ON" or "OFF")
-    toggleESP(ESP_ON)
-end)
-
---// Reroll System (placeholder)
+-- Reroll & Auto Reroll Logic
 local AutoReroll = false
-
 local function rerollEgg()
-    -- Try calling server event (Replace this with actual remote path)
-    print("[BloomScript] Reroll Egg called.")
-    -- Example: game.ReplicatedStorage.Remotes.RerollEgg:FireServer()
+    print("[BloomScript] Reroll Egg triggered.")
+    -- Replace with game event if available:
+    -- game.ReplicatedStorage.Remotes.RerollEgg:FireServer()
 end
 
-RerollButton.MouseButton1Click:Connect(function()
-    rerollEgg()
-end)
+RerollButton.MouseButton1Click:Connect(rerollEgg)
 
 AutoRerollButton.MouseButton1Click:Connect(function()
     AutoReroll = not AutoReroll
@@ -140,7 +165,7 @@ AutoRerollButton.MouseButton1Click:Connect(function()
         task.spawn(function()
             while AutoReroll do
                 rerollEgg()
-                task.wait(1) -- reroll every 1 sec
+                task.wait(1)
             end
         end)
     end
