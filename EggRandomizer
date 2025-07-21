@@ -1,0 +1,133 @@
+-- Create ScreenGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "PetESPRandomizerUI"
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- Main Frame
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 340, 0, 320)
+MainFrame.Position = UDim2.new(0.5, -170, 0.5, -160)
+MainFrame.BackgroundColor3 = Color3.fromRGB(40, 150, 60) -- Base green
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.BackgroundTransparency = 1
+MainFrame.Parent = ScreenGui
+
+-- Fade-in Animation
+game:GetService("TweenService"):Create(MainFrame, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0}):Play()
+
+-- Rounded corners
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 15)
+MainCorner.Parent = MainFrame
+
+-- Gradient Background
+local MainGradient = Instance.new("UIGradient")
+MainGradient.Color = ColorSequence.new{
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(80, 200, 80)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(40, 120, 40))
+}
+MainGradient.Rotation = 90
+MainGradient.Parent = MainFrame
+
+-- Pet Decoration Image (animated)
+local PetImage = Instance.new("ImageLabel")
+PetImage.Size = UDim2.new(0, 100, 0, 100)
+PetImage.Position = UDim2.new(0.5, -50, 0, -40)
+PetImage.BackgroundTransparency = 1
+PetImage.Image = "rbxassetid://10957096357" -- Replace with your pet image
+PetImage.Parent = MainFrame
+
+-- Animation: Pet rotates slowly
+task.spawn(function()
+	while true do
+		for i = 0, 360, 1 do
+			PetImage.Rotation = i
+			task.wait(0.03)
+		end
+	end
+end)
+
+-- Title Text
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.BackgroundTransparency = 1
+Title.Text = "Pet ESP Randomizer"
+Title.Font = Enum.Font.FredokaOne
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextStrokeTransparency = 0.5
+Title.TextScaled = true
+Title.Parent = MainFrame
+
+-- Function to create a stylish button with hover effects
+local function createButton(name, text, position, color)
+	local btn = Instance.new("TextButton")
+	btn.Name = name
+	btn.Size = UDim2.new(1, -20, 0, 40)
+	btn.Position = position
+	btn.BackgroundColor3 = color
+	btn.Text = text
+	btn.TextScaled = true
+	btn.Font = Enum.Font.FredokaOne
+	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	btn.Parent = MainFrame
+
+	-- Rounded corners
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 8)
+	corner.Parent = btn
+
+	-- Gradient
+	local gradient = Instance.new("UIGradient")
+	gradient.Color = ColorSequence.new{
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+		ColorSequenceKeypoint.new(1, color)
+	}
+	gradient.Rotation = 90
+	gradient.Parent = btn
+
+	-- Hover effect (light glow)
+	btn.MouseEnter:Connect(function()
+		game:GetService("TweenService"):Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = color:lerp(Color3.fromRGB(255,255,255),0.3)}):Play()
+	end)
+	btn.MouseLeave:Connect(function()
+		game:GetService("TweenService"):Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = color}):Play()
+	end)
+
+	return btn
+end
+
+-- Create Buttons
+local ESPButton = createButton("ESPButton", "ESP: ON", UDim2.new(0, 10, 0, 80), Color3.fromRGB(0, 120, 200))
+local RerollButton = createButton("RerollButton", "Reroll Egg", UDim2.new(0, 10, 0, 130), Color3.fromRGB(200, 150, 0))
+local AutoRerollButton = createButton("AutoRerollButton", "Auto Reroll: OFF", UDim2.new(0, 10, 0, 180), Color3.fromRGB(150, 0, 150))
+
+-- "Made by BloomScript" Label
+local Signature = Instance.new("TextLabel")
+Signature.Size = UDim2.new(1, 0, 0, 20)
+Signature.Position = UDim2.new(0, 0, 1, -20)
+Signature.BackgroundTransparency = 1
+Signature.Text = "Made by BloomScript"
+Signature.Font = Enum.Font.FredokaOne
+Signature.TextColor3 = Color3.fromRGB(255, 255, 255)
+Signature.TextScaled = true
+Signature.TextStrokeTransparency = 0.5
+Signature.Parent = MainFrame
+
+-- Button Logic
+local ESP_ON = true
+ESPButton.MouseButton1Click:Connect(function()
+	ESP_ON = not ESP_ON
+	ESPButton.Text = "ESP: " .. (ESP_ON and "ON" or "OFF")
+end)
+
+local AutoReroll_ON = false
+AutoRerollButton.MouseButton1Click:Connect(function()
+	AutoReroll_ON = not AutoReroll_ON
+	AutoRerollButton.Text = "Auto Reroll: " .. (AutoReroll_ON and "ON" or "OFF")
+end)
+
+RerollButton.MouseButton1Click:Connect(function()
+	print("Reroll Egg Clicked!")
+end)
