@@ -1,163 +1,179 @@
--- BloomScript Grow a Garden ESP + Reroll
+--// Services
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
+local Workspace = game:GetService("Workspace")
 local RunService = game:GetService("RunService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local LocalPlayer = Players.LocalPlayer
 
--- Create GUI
-local ScreenGui = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
-ScreenGui.Name = "BloomScriptUI"
+--// Pet List
+local specialPets = {
+    "Queen Bee", "Mimic Octopus", "Raccoon", "Disco Bee", "Jackal God",
+    "T-Rex", "Spinosaurus", "Dragonfly", "Butterfly", "Kitsune"
+}
 
-local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 340, 0, 300)
-MainFrame.Position = UDim2.new(0.5, -170, 0.5, -150)
-MainFrame.BackgroundColor3 = Color3.fromRGB(40, 150, 60)
-MainFrame.Active = true
-MainFrame.Parent = ScreenGui
+local eggPets = {
+    ["Bee Egg"] = {"Bee","Honey Bee","Bear Bee","Petal Bee","Queen Bee"},
+    ["Common Egg"] = {"Golden Lab","Dog","Bunny"},
+    ["Mythical Egg"] = {"Grey Mouse","Brown Mouse","Squirrel","Red Giant Ant","Red Fox"},
+    ["Bug Egg"] = {"Snail","Giant Ant","Caterpillar","Praying Mantis","Dragonfly"},
+    ["Common Summer Egg"] = {"Starfish","Seagull","Crab"},
+    ["Rare Summer Egg"] = {"Flamingo","Toucan","Sea Turtle","Orangutan","Seal"},
+    ["Paradise Egg"] = {"Ostrich","Peacock","Capybara","Scarlet Macaw","Mini Octopus"},
+    ["Legendary Egg"] = {"Cow","Silver Monkey","Sea Otter","Turtle","Polar Bear"},
+    ["Rare Egg"] = {"Orange Tabby","Spotted Deer","Pig","Rooster","Monkey"},
+    ["Uncommon Egg"] = {"Black Bunny","Chicken","Cat","Deer"},
+    ["Night Egg"] = {"Hedgehog","Mole","Frog","Echo Frog","Night Owl","Raccoon"},
+    ["Anti Bee Egg"] = {"Wasp","Tarantula Hawk","Moth","Butterfly","Disco Bee"},
+    ["Oasis Egg"] = {"Fennec Fox","Meerkat","Cooked Owl","Axolotl","Snake","Jackal God"},
+    ["Dinosaur Egg"] = {"Raptor","Triceratops","Stegosaurus","Pterodactyl","Brontosaurus","T-Rex"},
+    ["Primal Egg"] = {"Parasaurolophus","Iguanodon","Pachycephalosaurus","Dilophosaurus","Ankylosaurus","Spinosaurus"}
+}
 
-Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 12)
+--// UI Setup
+local gui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
+gui.Name = "PetRandomizerUI"
+gui.ResetOnSpawn = false
 
--- Draggable
-local dragging, dragInput, startPos, startFramePos
-MainFrame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        startPos = input.Position
-        startFramePos = MainFrame.Position
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
+local mainFrame = Instance.new("Frame", gui)
+mainFrame.Size = UDim2.new(0, 320, 0, 250)
+mainFrame.Position = UDim2.new(0.05, 0, 0.3, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(25, 35, 40)
+mainFrame.Active = true
+mainFrame.Draggable = true
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 12)
+
+local title = Instance.new("TextLabel", mainFrame)
+title.Text = "🐾 Pet Randomizer"
+title.Size = UDim2.new(1, 0, 0, 40)
+title.BackgroundTransparency = 1
+title.TextColor3 = Color3.new(1, 1, 1)
+title.Font = Enum.Font.FredokaOne
+title.TextSize = 20
+
+local statusText = Instance.new("TextLabel", mainFrame)
+statusText.Size = UDim2.new(1, -20, 0, 24)
+statusText.Position = UDim2.new(0, 10, 0, 40)
+statusText.Text = ""
+statusText.TextColor3 = Color3.fromRGB(0, 255, 0)
+statusText.BackgroundTransparency = 1
+statusText.Font = Enum.Font.FredokaOne
+statusText.TextSize = 16
+
+local randomBtn = Instance.new("TextButton", mainFrame)
+randomBtn.Size = UDim2.new(1, -40, 0, 35)
+randomBtn.Position = UDim2.new(0, 20, 0, 80)
+randomBtn.BackgroundColor3 = Color3.fromRGB(0, 162, 255)
+randomBtn.TextColor3 = Color3.new(1, 1, 1)
+randomBtn.Text = "Randomize in: 7"
+randomBtn.Font = Enum.Font.FredokaOne
+randomBtn.TextSize = 16
+Instance.new("UICorner", randomBtn).CornerRadius = UDim.new(0, 8)
+
+local autoBtn = Instance.new("TextButton", mainFrame)
+autoBtn.Size = UDim2.new(1, -40, 0, 30)
+autoBtn.Position = UDim2.new(0, 20, 0, 125)
+autoBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+autoBtn.TextColor3 = Color3.new(1, 1, 1)
+autoBtn.Text = "✔ Auto Randomize: ON"
+autoBtn.Font = Enum.Font.FredokaOne
+autoBtn.TextSize = 14
+Instance.new("UICorner", autoBtn).CornerRadius = UDim.new(0, 8)
+
+local espBtn = Instance.new("TextButton", mainFrame)
+espBtn.Size = UDim2.new(1, -40, 0, 30)
+espBtn.Position = UDim2.new(0, 20, 0, 165)
+espBtn.BackgroundColor3 = Color3.fromRGB(85, 0, 255)
+espBtn.TextColor3 = Color3.new(1, 1, 1)
+espBtn.Text = "✔ Pet ESP: ON"
+espBtn.Font = Enum.Font.FredokaOne
+espBtn.TextSize = 14
+Instance.new("UICorner", espBtn).CornerRadius = UDim.new(0, 8)
+
+--// Core Variables
+local petESP = true
+local autoRandomize = true
+local countdown = 7
+
+--// ESP Logic
+local function updateESP(model, petName, isSpecial)
+    local labelGui = model:FindFirstChild("PetESP")
+    if not labelGui and petESP then
+        labelGui = Instance.new("BillboardGui", model)
+        labelGui.Name = "PetESP"
+        labelGui.Size = UDim2.new(0, 100, 0, 30)
+        labelGui.AlwaysOnTop = true
+        labelGui.StudsOffset = Vector3.new(0, 2.5, 0)
+
+        local label = Instance.new("TextLabel", labelGui)
+        label.Size = UDim2.new(1, 0, 1, 0)
+        label.BackgroundTransparency = 1
+        label.Text = petName
+        label.TextColor3 = isSpecial and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 255, 255)
+        label.Font = Enum.Font.FredokaOne
+        label.TextScaled = true
+    elseif labelGui then
+        labelGui.Enabled = petESP
     end
-end)
-MainFrame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement then dragInput = input end
-end)
-RunService.InputChanged:Connect(function(input)
-    if input == dragInput and dragging then
-        local delta = input.Position - startPos
-        MainFrame.Position = UDim2.new(
-            startFramePos.X.Scale,
-            startFramePos.X.Offset + delta.X,
-            startFramePos.Y.Scale,
-            startFramePos.Y.Offset + delta.Y
-        )
-    end
-end)
-
--- Title
-local Title = Instance.new("TextLabel")
-Title.Text = "Grow a Garden ESP"
-Title.Size = UDim2.new(1, 0, 0, 40)
-Title.BackgroundTransparency = 1
-Title.Font = Enum.Font.FredokaOne
-Title.TextColor3 = Color3.new(1, 1, 1)
-Title.TextScaled = true
-Title.Parent = MainFrame
-
--- Buttons
-local function createBtn(name, text, pos, color)
-    local btn = Instance.new("TextButton")
-    btn.Name = name
-    btn.Text = text
-    btn.Size = UDim2.new(1, -20, 0, 40)
-    btn.Position = pos
-    btn.BackgroundColor3 = color
-    btn.Font = Enum.Font.FredokaOne
-    btn.TextColor3 = Color3.new(1,1,1)
-    btn.TextScaled = true
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-    btn.Parent = MainFrame
-    return btn
 end
 
-local ESPBtn = createBtn("ESPBtn","ESP: ON",UDim2.new(0,10,0,80),Color3.fromRGB(0,120,200))
-local RerollBtn = createBtn("RerollBtn","Reroll Egg",UDim2.new(0,10,0,130),Color3.fromRGB(200,150,0))
-local AutoRerollBtn = createBtn("AutoRerollBtn","Auto Reroll: OFF",UDim2.new(0,10,0,180),Color3.fromRGB(150,0,150))
-
--- ESP Logic
-local ESP_ON = true
-local ESP_List = {}
-
-local function addESP(obj)
-    if not obj:IsA("Model") or obj:FindFirstChild("ESP_TAG") then return end
-    local part = obj:FindFirstChildWhichIsA("BasePart")
-    if not part then return end
-
-    local billboard = Instance.new("BillboardGui")
-    billboard.Name = "ESP_TAG"
-    billboard.Size = UDim2.new(0,100,0,30)
-    billboard.AlwaysOnTop = true
-    billboard.Adornee = part
-    billboard.Parent = obj
-
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1,0,1,0)
-    label.BackgroundTransparency = 1
-    label.Text = obj.Name
-    label.TextColor3 = Color3.new(1,1,1)
-    label.TextScaled = true
-    label.Font = Enum.Font.FredokaOne
-    label.Parent = billboard
-    table.insert(ESP_List, billboard)
+local function pickPet(petList)
+    local special, normal = {}, {}
+    for _, pet in ipairs(petList) do
+        if table.find(specialPets, pet) then
+            table.insert(special, pet)
+        else
+            table.insert(normal, pet)
+        end
+    end
+    return (#special > 0 and math.random(100) <= 5) and special[math.random(#special)] or normal[math.random(#normal)]
 end
 
-ESPBtn.MouseButton1Click:Connect(function()
-    ESP_ON = not ESP_ON
-    ESPBtn.Text = "ESP: " .. (ESP_ON and "ON" or "OFF")
-    for _, b in ipairs(ESP_List) do b.Enabled = ESP_ON end
-end)
-
-task.spawn(function()
-    while true do
-        if ESP_ON then
-            for _, obj in ipairs(workspace:GetChildren()) do
-                if obj:IsA("Model") and string.find(string.lower(obj.Name), "egg") then
-                    addESP(obj)
-                end
+local function randomizePets()
+    for _, obj in pairs(Workspace:GetDescendants()) do
+        if obj:IsA("Model") and eggPets[obj.Name] then
+            local chosen = pickPet(eggPets[obj.Name])
+            local isSpecial = table.find(specialPets, chosen) ~= nil
+            updateESP(obj, chosen, isSpecial)
+            if isSpecial then
+                statusText.Text = "YOU GOT A SPECIAL PET!"
+                autoRandomize = false
+                autoBtn.Text = "✖ Auto Randomize: OFF"
+                autoBtn.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
             end
         end
-        task.wait(2)
-    end
-end)
-
--- Reroll Logic
-local AutoReroll = false
-local function reroll()
-    -- Attempt to fire Grow a Garden's reroll remote (if it exists)
-    local success, event = pcall(function()
-        return ReplicatedStorage:FindFirstChild("RerollEgg") or ReplicatedStorage:FindFirstChild("Events"):FindFirstChild("RerollEgg")
-    end)
-    if success and event and event:IsA("RemoteEvent") then
-        event:FireServer()
-    else
-        print("[BloomScript] Reroll triggered (placeholder).")
     end
 end
 
-RerollBtn.MouseButton1Click:Connect(reroll)
+--// Button Connections
+autoBtn.MouseButton1Click:Connect(function()
+    autoRandomize = not autoRandomize
+    autoBtn.Text = autoRandomize and "✔ Auto Randomize: ON" or "✖ Auto Randomize: OFF"
+    autoBtn.BackgroundColor3 = autoRandomize and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(170, 0, 0)
+end)
 
-AutoRerollBtn.MouseButton1Click:Connect(function()
-    AutoReroll = not AutoReroll
-    AutoRerollBtn.Text = "Auto Reroll: " .. (AutoReroll and "ON" or "OFF")
-    if AutoReroll then
-        task.spawn(function()
-            while AutoReroll do
-                reroll()
-                task.wait(1)
-            end
-        end)
+espBtn.MouseButton1Click:Connect(function()
+    petESP = not petESP
+    espBtn.Text = petESP and "✔ Pet ESP: ON" or "✖ Pet ESP: OFF"
+    espBtn.BackgroundColor3 = petESP and Color3.fromRGB(85, 0, 255) or Color3.fromRGB(100, 100, 100)
+    for _, model in pairs(Workspace:GetDescendants()) do
+        local gui = model:FindFirstChild("PetESP")
+        if gui then gui.Enabled = petESP end
     end
 end)
 
--- Signature
-local Sign = Instance.new("TextLabel")
-Sign.Text = "Made by BloomScript"
-Sign.Size = UDim2.new(1, 0, 0, 20)
-Sign.Position = UDim2.new(0, 0, 1, -20)
-Sign.BackgroundTransparency = 1
-Sign.Font = Enum.Font.FredokaOne
-Sign.TextColor3 = Color3.new(1,1,1)
-Sign.TextScaled = true
-Sign.Parent = MainFrame
+-- Auto Randomizer Loop
+task.spawn(function()
+    while true do
+        if autoRandomize then
+            randomBtn.Text = "Randomize in: " .. countdown
+            task.wait(1)
+            countdown -= 1
+            if countdown <= 0 then
+                randomizePets()
+                countdown = 7
+            end
+        else
+            randomBtn.Text = "Randomizer Paused"
+            task.wait(0.5)
+        end
+    end
+end)
