@@ -1,0 +1,56 @@
+-- LocalScript placed inside StarterGui
+
+local player = game.Players.LocalPlayer
+local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+gui.Name = "TradeFreezerGUI"
+
+-- Frame Setup
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 230, 0, 160)
+frame.Position = UDim2.new(0, 20, 0.3, 0)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.BorderSizePixel = 0
+frame.BackgroundTransparency = 0.1
+frame.Active = true -- Allow the frame to receive input
+frame.Draggable = true -- Enable dragging
+frame.Parent = gui
+
+-- Title Label
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 35)
+title.BackgroundTransparency = 1
+title.Text = "🌱 Trade Freezer"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 20
+title.TextColor3 = Color3.fromRGB(85, 255, 85)
+title.Parent = frame
+
+-- Button Creation Function
+local function createToggleButton(name, yPos, labelText)
+    local toggle = Instance.new("TextButton")
+    toggle.Name = name
+    toggle.Size = UDim2.new(0.9, 0, 0, 30)
+    toggle.Position = UDim2.new(0.05, 0, 0, yPos)
+    toggle.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+    toggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+    toggle.Font = Enum.Font.Gotham
+    toggle.TextSize = 16
+    toggle.Text = labelText .. " [OFF]"
+    toggle.AutoButtonColor = false
+    toggle.Parent = frame
+
+    local active = false
+    toggle.MouseButton1Click:Connect(function()
+        active = not active
+        toggle.Text = labelText .. (active and " [ON]" or " [OFF]")
+        toggle.BackgroundColor3 = active and Color3.fromRGB(85, 170, 85) or Color3.fromRGB(45, 45, 45)
+
+        -- Add your functionality here
+        print(labelText .. ": " .. (active and "Enabled" or "Disabled"))
+    end)
+end
+
+-- Create Buttons
+createToggleButton("ActivateFreezer", 50, "Activate Freezer")
+createToggleButton("LockItems", 90, "Lock Items")
+createToggleButton("AutoAccept", 130, "Auto Accept Trades")
