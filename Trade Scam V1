@@ -1,0 +1,138 @@
+--// Trade GUI (Custom System) //--
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- Create ScreenGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.Name = "TradeScamGUI"
+
+-- Main Frame
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 250, 0, 160)
+MainFrame.Position = UDim2.new(0.3, 0, 0.3, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(139, 69, 19)
+MainFrame.Active = true
+MainFrame.Visible = false -- start hidden
+MainFrame.Parent = ScreenGui
+
+-- Title Bar
+local TitleBar = Instance.new("TextLabel")
+TitleBar.Size = UDim2.new(1, 0, 0, 40)
+TitleBar.BackgroundColor3 = Color3.fromRGB(34, 139, 34)
+TitleBar.Text = "Decko Freezer"
+TitleBar.TextColor3 = Color3.fromRGB(255,255,255)
+TitleBar.Font = Enum.Font.SourceSansBold
+TitleBar.TextScaled = true
+TitleBar.Parent = MainFrame
+
+-- Make draggable
+local dragging, dragInput, dragStart, startPos
+TitleBar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = MainFrame.Position
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+TitleBar.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		local delta = input.Position - dragStart
+		MainFrame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+-- Trade Scam Button
+local ScamBtn = Instance.new("TextButton")
+ScamBtn.Size = UDim2.new(1, -20, 0, 40)
+ScamBtn.Position = UDim2.new(0, 10, 0, 50)
+ScamBtn.BackgroundColor3 = Color3.fromRGB(90, 40, 20)
+ScamBtn.Text = "Trade Scam (OFF)"
+ScamBtn.TextColor3 = Color3.fromRGB(255,255,255)
+ScamBtn.Font = Enum.Font.SourceSansBold
+ScamBtn.TextScaled = true
+ScamBtn.Parent = MainFrame
+
+-- Victim Display
+local VictimName = Instance.new("TextLabel")
+VictimName.Size = UDim2.new(1, -20, 0, 20)
+VictimName.Position = UDim2.new(0, 10, 0, 90)
+VictimName.BackgroundTransparency = 1
+VictimName.Text = "Victim: None"
+VictimName.TextColor3 = Color3.fromRGB(255,255,255)
+VictimName.Font = Enum.Font.SourceSans
+VictimName.TextScaled = true
+VictimName.Parent = MainFrame
+
+-- Auto Accept Button
+local AutoBtn = Instance.new("TextButton")
+AutoBtn.Size = UDim2.new(1, -20, 0, 40)
+AutoBtn.Position = UDim2.new(0, 10, 0, 115)
+AutoBtn.BackgroundColor3 = Color3.fromRGB(90, 40, 20)
+AutoBtn.Text = "Auto Accept (OFF)"
+AutoBtn.TextColor3 = Color3.fromRGB(255,255,255)
+AutoBtn.Font = Enum.Font.SourceSansBold
+AutoBtn.TextScaled = true
+AutoBtn.Parent = MainFrame
+
+-- States
+local scamEnabled = false
+local autoAcceptEnabled = false
+
+-- Toggle scam button
+ScamBtn.MouseButton1Click:Connect(function()
+	scamEnabled = not scamEnabled
+	if scamEnabled then
+		ScamBtn.Text = "Trade Scam (ON)"
+	else
+		ScamBtn.Text = "Trade Scam (OFF)"
+	end
+end)
+
+-- Toggle auto accept
+AutoBtn.MouseButton1Click:Connect(function()
+	autoAcceptEnabled = not autoAcceptEnabled
+	if autoAcceptEnabled then
+		AutoBtn.Text = "Auto Accept (ON)"
+	else
+		AutoBtn.Text = "Auto Accept (OFF)"
+	end
+end)
+
+-- 🔹 Functions to hook into your trade system
+function OpenTrade(targetPlayer)
+	VictimName.Text = "Victim: " .. targetPlayer.Name
+	MainFrame.Visible = true
+end
+
+function CloseTrade()
+	MainFrame.Visible = false
+	VictimName.Text = "Victim: None"
+	ScamBtn.Text = "Trade Scam (OFF)"
+	AutoBtn.Text = "Auto Accept (OFF)"
+	scamEnabled = false
+	autoAcceptEnabled = false
+end
+
+-- Example test: open trade with another player after 5 seconds
+task.wait(5)
+local otherPlayer = Players:GetPlayers()[2] -- grabs another player if available
+if otherPlayer then
+	OpenTrade(otherPlayer)
+end
